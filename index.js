@@ -122,6 +122,29 @@ app.get('/products', async (req, res) => {
     res.status(500).send('Error retrieving products');
   }
 });
+//contact
+const contactSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  phone: Number,
+  message: String
+}, {
+  timestamps: true
+});
+const Contact = mongoose.model('Contact', contactSchema);
+app.post('/contact', async (req, res) => {
+  try {
+    const { name, email, phone, message } = req.body;
+
+    const newContact = new Contact({ name, email, phone, message });
+    await newContact.save();
+
+    res.status(201).json({ message: 'Contact saved successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to save contact' });
+  }
+});
 
 
 app.listen(3000, () => console.log('Server running on port 3000'));
