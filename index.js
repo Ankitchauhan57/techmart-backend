@@ -13,8 +13,8 @@ mongoose.connect("mongodb+srv://ankitchauhan6331:qy3HZtgsQNc840Nj@cluster0.vxlhk
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log("MongoDB connected successfully"))
-.catch((err) => console.error("MongoDB connection error:", err));
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -33,37 +33,37 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('users', userSchema);
 
 
-app.get('/users', async (req,res) => {
+app.get('/users', async (req, res) => {
   const users = await User.find();
   res.json(users);
 });
 // Get a single user by ID
 app.get('/users/:id', async (req, res) => {
   try {
-      const user = await User.findById(req.params.id);
-      if (!user) return res.status(404).send('User not found');
-      res.json(user);
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).send('User not found');
+    res.json(user);
   } catch (err) {
-      res.status(500).send('Error retrieving user');
+    res.status(500).send('Error retrieving user');
   }
 });
 
 app.post('/users', async (req, res) => {
   try {
-      const newUser = new User({ name: req.body.name ,email:req.body.email,password:req.body.password});
-      await newUser.save();
-      res.status(201).json(newUser);
+    const newUser = new User({ name: req.body.name, email: req.body.email, password: req.body.password });
+    await newUser.save();
+    res.status(201).json(newUser);
   } catch (err) {
-      res.status(500).send('Error saving user');
+    res.status(500).send('Error saving user');
   }
-}); 
+});
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email, password }); //  MongoDB query
-// or use bcrypt for hash check
+    // or use bcrypt for hash check
     if (user) {
       res.json({ message: 'Login successful', user });
     } else {
@@ -79,22 +79,22 @@ app.post('/login', async (req, res) => {
 // Update a user
 app.put('/users/:id', async (req, res) => {
   try {
-      const user = await User.findByIdAndUpdate(req.params.id, { name: req.body.name }, { new: true });
-      if (!user) return res.status(404).send('User not found');
-      res.json(user);
+    const user = await User.findByIdAndUpdate(req.params.id, { name: req.body.name }, { new: true });
+    if (!user) return res.status(404).send('User not found');
+    res.json(user);
   } catch (err) {
-      res.status(500).send('Error updating user');
+    res.status(500).send('Error updating user');
   }
 });
 
 // Delete a user
 app.delete('/users/:id', async (req, res) => {
   try {
-      const result = await User.findByIdAndDelete(req.params.id);
-      if (!result) return res.status(404).send('User not found');
-      res.send('User deleted');
+    const result = await User.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).send('User not found');
+    res.send('User deleted');
   } catch (err) {
-      res.status(500).send('Error deleting user');
+    res.status(500).send('Error deleting user');
   }
 });
 
@@ -103,7 +103,7 @@ const productSchema = new mongoose.Schema({
   name: String,
   description: String,
   price: Number,
-  image: String,  
+  image: String,
   category: String,
   brand: String
 }, {
@@ -143,6 +143,41 @@ app.post('/contact', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to save contact' });
+  }
+});
+
+//billing
+const billingSchema = new mongoose.Schema({
+  name: String,
+  address: String,
+  extra: String,
+  town: String,
+  phone: String,
+  email: String,
+  saveInfo: Boolean,
+  cartItems: [
+    {
+      name: String,
+      price: Number,
+      quantity: Number,
+      image: String,
+    }
+  ],
+  total: Number,
+  paymentMethod: String
+}, {
+  timestamps: true
+});
+
+module.exports = mongoose.model('Billing', billingSchema);
+app.post('/billing', async (req, res) => {
+  try {
+    const billing = new Billing(req.body);
+    await billing.save();
+    res.status(201).json({ message: 'Billing info saved successfully' });
+  } catch (error) {
+    console.error('Billing error:', error);
+    res.status(500).json({ message: 'Failed to save billing info' });
   }
 });
 
